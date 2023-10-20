@@ -1,43 +1,35 @@
-import logo from '../logo.svg';
 import {
-  createBrowserRouter,
-  RouterProvider,
-//   Link,
-  Outlet,
-  NavLink,
-  Navigate,
+    NavLink,
+    Navigate,
+    Outlet,
+    RouterProvider,
+    createBrowserRouter,
 } from "react-router-dom";
-// import { About } from "../pages/About";
- 
-function Root () {
-    
+import logo from '../logo.svg';
+import { routes } from './routes';
+import { Suspense } from "react";
+function Root() {
+
+    // eslint-disable-next-line no-lone-blocks
+    {/*
+        Hacer carga diferida de un componente o un módulo
+    */}
+
     return (
- 
+
         <div className="main-layout">
             <nav>
-                <img src={logo} alt="React log" />
+                <img src={logo} alt="React logo" />
                 <ul>
-                    <li>
-                        <NavLink 
-                            to="/home" className={({isActive}) => isActive ? "nav-active" : ""}   
-                        >
-                            Home
-                        </NavLink>
-                    </li>
-                    <li>
-                        <NavLink 
-                            to="/about" className={({isActive}) => isActive ? "nav-active" : ""}   
-                        >
-                            About
-                        </NavLink>
-                    </li>
-                    <li>
-                        <NavLink 
-                            to="/users" className={({isActive}) => isActive ? "nav-active" : ""}   
-                        >
-                            Users
-                        </NavLink>
-                    </li>
+                    {routes.map(({ to, name }) => (
+                        <li key={to}>
+                            <NavLink
+                                to={to} className={({ isActive }) => isActive ? "nav-active" : ""}
+                            >
+                                {name}
+                            </NavLink>
+                        </li>
+                    ))}
                 </ul>
             </nav>
             <div id="detail">
@@ -50,31 +42,19 @@ const router = createBrowserRouter([
     {
         path: "/",
         element: <Root />,
-        children: [
-            {
-                path: "/home",
-                element: <h1>Home</h1>
-            },
-            {
-                path: "about",
-                element: <h1>About</h1>
-            },
-            {
-                path: "users",
-                element: <h1>Users page</h1>,
-            }
- 
-        ]
+        children: routes.map(({ path, Component }) => ({ path, element: <Component /> }))
     },
     {
         path: "/*",
-        element: <Navigate to="/home" replace={true} />
+        element: <Navigate to={routes[0].to} replace />
     }
 ]);
- 
- 
+
+
 export const Navigation = () => {
-  return (
-    <RouterProvider router={router} />
-  )
+    return (
+        <Suspense fallback={<span>Loading...</span>}>
+            <RouterProvider router={router} />
+        </Suspense>
+    )
 }
